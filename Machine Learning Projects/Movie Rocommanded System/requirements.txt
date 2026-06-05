@@ -1,0 +1,7 @@
+streamlit
+fastapi
+uvicorn
+pandas
+scikit-learn
+requests
+python-dotenv

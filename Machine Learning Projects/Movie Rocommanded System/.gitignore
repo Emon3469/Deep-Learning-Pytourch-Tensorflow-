@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.egg-info/
+*.egg
+dist/
+build/
+movie_list.pkl
+similarity.pkl
+*.log
+.env.local

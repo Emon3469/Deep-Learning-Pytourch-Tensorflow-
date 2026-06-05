@@ -9,6 +9,10 @@ try:
 except Exception:
     pass
 
+BASE_DIR = os.path.dirname(__file__)
+MOVIE_LIST_PKL = os.path.join(BASE_DIR, 'movie_list.pkl')
+SIMILARITY_PKL = os.path.join(BASE_DIR, 'similarity.pkl')
+
 def fetch_movie_posters(movie_id):
     api_key = os.environ.get("TMDB_API_KEY", "")
     if not api_key:
@@ -37,8 +41,15 @@ def recommend(movie):
     return recommended_movie_names, recommended_movie_posters
 
 st.header('Movie Recommender System')
-movies = pickle.load(open('movie_list.pkl', 'rb'))
-similarity = pickle.load(open('similarity.pkl', 'rb'))
+if not os.path.exists(MOVIE_LIST_PKL) or not os.path.exists(SIMILARITY_PKL):
+    st.error('Missing movie_list.pkl or similarity.pkl in the app directory. Make sure these files are committed to the repo and included in the Render deployment root.')
+    st.stop()
+
+with open(MOVIE_LIST_PKL, 'rb') as movie_file:
+    movies = pickle.load(movie_file)
+
+with open(SIMILARITY_PKL, 'rb') as similarity_file:
+    similarity = pickle.load(similarity_file)
 
 movie_list = movies['title'].values
 selected_movie = st.selectbox(

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from services.pydentic import Detection
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 MODEL_DIR = BASE_DIR / "models"
-MODEL_CANDIDATES = [MODEL_DIR / "best.pt", MODEL_DIR / "best.onnx"]
+MODEL_CANDIDATES = [MODEL_DIR / "best.onnx", MODEL_DIR / "best.pt"]
 DEFAULT_MODEL_PATH = next((path for path in MODEL_CANDIDATES if path.exists()), MODEL_CANDIDATES[0])
 CLASS_NAMES = {
     0: "bicycle",
@@ -33,11 +34,13 @@ class TrafficDetector:
         self.imgsz = imgsz
         self.iou = iou
         self.model = None
+        self.net = None
+        self.backend = None
         self.names = CLASS_NAMES.copy()
 
     def metadata(self) -> dict[str, object]:
         return {
-            "backend": "ultralytics" if self.model is not None else "not_loaded",
+            "backend": self.backend or "not_loaded",
             "model": str(self.model_path),
             "available_models": [str(path) for path in MODEL_CANDIDATES],
             "classes": self.names,
@@ -58,6 +61,8 @@ class TrafficDetector:
         use_tracking: bool = False,
     ) -> list[Detection]:
         self._load_model()
+        if self.backend == "opencv-dnn":
+            return self._detect_with_onnx(frame, conf=conf)
         if use_tracking:
             try:
                 results = self.model.track(
@@ -109,7 +114,7 @@ class TrafficDetector:
         return annotated
 
     def _load_model(self) -> None:
-        if self.model is not None:
+        if self.model is not None or self.net is not None:
             return
         if not self.model_path.exists():
             fallback = next((path for path in MODEL_CANDIDATES if path.exists()), None)
@@ -117,6 +122,13 @@ class TrafficDetector:
                 available = ", ".join(str(path) for path in MODEL_CANDIDATES)
                 raise FileNotFoundError(f"Model file not found. Looked for: {available}")
             self.model_path = fallback
+        if self.model_path.suffix.lower() == ".onnx":
+            cv2 = self._require_cv2()
+            self.net = cv2.dnn.readNetFromONNX(str(self.model_path))
+            self.backend = "opencv-dnn"
+            self.names = CLASS_NAMES.copy()
+            return
+
         try:
             from ultralytics import YOLO
         except ModuleNotFoundError as exc:
@@ -125,7 +137,104 @@ class TrafficDetector:
             ) from exc
 
         self.model = YOLO(str(self.model_path))
+        self.backend = "ultralytics"
         self.names = self._normalize_names(getattr(self.model, "names", CLASS_NAMES))
+
+    def _detect_with_onnx(self, frame: object, conf: float) -> list[Detection]:
+        cv2 = self._require_cv2()
+        try:
+            import numpy as np
+        except ModuleNotFoundError as exc:
+            raise MissingInferenceDependency(
+                "Install NumPy with `pip install -r requirements.txt`."
+            ) from exc
+
+        image = frame.copy()
+        height, width = image.shape[:2]
+        resized, scale, pad_x, pad_y = self._letterbox(image, self.imgsz)
+        blob = resized[:, :, ::-1].transpose(2, 0, 1).astype(np.float32) / 255.0
+        blob = np.expand_dims(blob, 0)
+
+        self.net.setInput(blob)
+        outputs = self.net.forward()
+        if outputs is None:
+            return []
+
+        predictions = np.asarray(outputs)
+        if predictions.ndim == 3:
+            predictions = predictions[0]
+        if predictions.shape[0] < predictions.shape[1] and predictions.shape[0] <= 64:
+            predictions = predictions.transpose(1, 0)
+
+        if predictions.shape[1] < 5:
+            return []
+
+        boxes = predictions[:, :4]
+        scores = predictions[:, 4:]
+        class_ids = scores.argmax(axis=1)
+        confidences = scores.max(axis=1)
+
+        candidate_boxes: list[list[int]] = []
+        candidate_scores: list[float] = []
+        candidate_labels: list[int] = []
+        for box, score, cls_id in zip(boxes, confidences, class_ids):
+            if float(score) < conf:
+                continue
+            x_center, y_center, box_width, box_height = map(float, box[:4])
+            x1 = (x_center - box_width / 2 - pad_x) / scale
+            y1 = (y_center - box_height / 2 - pad_y) / scale
+            x2 = (x_center + box_width / 2 - pad_x) / scale
+            y2 = (y_center + box_height / 2 - pad_y) / scale
+            left = max(0, min(int(round(x1)), width - 1))
+            top = max(0, min(int(round(y1)), height - 1))
+            right = max(0, min(int(round(x2)), width))
+            bottom = max(0, min(int(round(y2)), height))
+            if right <= left or bottom <= top:
+                continue
+            candidate_boxes.append([left, top, right - left, bottom - top])
+            candidate_scores.append(float(score))
+            candidate_labels.append(int(cls_id))
+
+        if not candidate_boxes:
+            return []
+
+        indices = cv2.dnn.NMSBoxes(candidate_boxes, candidate_scores, score_threshold=conf, nms_threshold=self.iou)
+        if len(indices) == 0:
+            return []
+
+        detections: list[Detection] = []
+        for index in np.array(indices).flatten():
+            x, y, box_width, box_height = candidate_boxes[int(index)]
+            detections.append(
+                Detection(
+                    label=self.names.get(candidate_labels[int(index)], str(candidate_labels[int(index)])),
+                    confidence=float(candidate_scores[int(index)]),
+                    xyxy=(x, y, x + box_width, y + box_height),
+                    track_id=None,
+                )
+            )
+        return detections
+
+    def _letterbox(self, image: object, new_size: int) -> tuple[object, float, float, float]:
+        cv2 = self._require_cv2()
+        height, width = image.shape[:2]
+        scale = min(new_size / height, new_size / width)
+        resized_width = max(1, int(round(width * scale)))
+        resized_height = max(1, int(round(height * scale)))
+        resized = cv2.resize(image, (resized_width, resized_height), interpolation=cv2.INTER_LINEAR)
+        canvas = self._np_full((new_size, new_size, 3), 114, image.dtype)
+        pad_x = (new_size - resized_width) / 2
+        pad_y = (new_size - resized_height) / 2
+        left = int(round(pad_x))
+        top = int(round(pad_y))
+        canvas[top : top + resized_height, left : left + resized_width] = resized
+        return canvas, scale, pad_x, pad_y
+
+    @staticmethod
+    def _np_full(shape: tuple[int, int, int], fill_value: int, dtype: Any) -> object:
+        import numpy as np
+
+        return np.full(shape, fill_value, dtype=dtype)
 
     def _parse_result(self, result: object) -> list[Detection]:
         boxes = getattr(result, "boxes", None)

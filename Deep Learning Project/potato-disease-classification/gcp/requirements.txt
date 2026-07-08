@@ -1,0 +1,4 @@
+google-cloud-storage==1.16.1
+tensorflow==2.21.0
+numpy>=1.26.0
+pillow

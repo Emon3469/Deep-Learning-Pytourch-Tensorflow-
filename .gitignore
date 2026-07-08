@@ -1,0 +1,5 @@
+# Large local artifacts excluded from GitHub.
+Deep Learning Project/Handwritten_Digit_Recognition/dataset/Train.csv
+Deep Learning Project/NLP Projects/Healthcare Customer Support Chatbot Using Transformer/chatbot_model/model.safetensors
+Deep Learning Project/NLP Projects/Healthcare Customer Support Chatbot Using Transformer/trained_chatbot.zip
+Deep Learning Project/NLP Projects/Resume Screening and  App/clf.pkl

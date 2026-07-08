@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+python-multipart
+opencv-python-headless
+# Optional OCR support for plate text extraction can be added separately if needed.

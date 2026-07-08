@@ -1,0 +1,14 @@
+# Machine Learning
+tensorflow==2.21.0
+numpy>=1.26.0
+streamlit
+requests
+
+# API Development
+fastapi
+uvicorn
+python-multipart
+
+# Image & Data Visualization
+pillow
+matplotlib

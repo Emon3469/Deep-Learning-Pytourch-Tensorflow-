@@ -1,0 +1,8 @@
+fastapi==0.139.0
+uvicorn==0.49.0
+opencv-python==4.13.0.92
+
+# Optional computer-vision extras for the full HUD experience.
+# Install these only if you have enough disk space and want face/hand/pose and YOLO overlays.
+mediapipe==0.10.35
+ultralytics==8.4.84

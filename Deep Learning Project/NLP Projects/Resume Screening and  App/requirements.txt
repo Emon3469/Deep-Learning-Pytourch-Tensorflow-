@@ -1,0 +1,7 @@
+Flask>=3.0,<4
+numpy>=1.26,<3
+scikit-learn>=1.6,<2
+PyPDF2>=3.0,<4
+python-docx>=1.1,<2
+gunicorn>=22,<24; platform_system != "Windows"
+waitress>=3.0,<4; platform_system == "Windows"

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening Classifier</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <main class="app-shell">
+        <section class="workspace">
+            <div class="panel intro-panel">
+                <p class="eyebrow">NLP Portfolio Project</p>
+                <h1>Resume Screening Classifier</h1>
+                <p class="lede">Upload a resume or paste text to classify it into one of the trained career categories.</p>
+                <div class="status-strip" id="healthStatus">Checking model status...</div>
+            </div>
+
+            <form class="panel input-panel" id="resumeForm">
+                <label class="field-label" for="resumeFile">Resume file</label>
+                <input id="resumeFile" name="resume" type="file" accept=".pdf,.docx,.txt">
+
+                <div class="divider"><span>or paste text</span></div>
+
+                <label class="field-label" for="resumeText">Resume text</label>
+                <textarea id="resumeText" name="text" rows="13" placeholder="Paste resume content here..."></textarea>
+
+                <button class="primary-button" type="submit">
+                    Analyze Resume
+                </button>
+            </form>
+
+            <section class="panel result-panel" aria-live="polite">
+                <div class="result-empty" id="emptyState">
+                    <span class="document-mark">CV</span>
+                    <p>Prediction results will appear here.</p>
+                </div>
+
+                <div class="result-content hidden" id="resultContent">
+                    <p class="eyebrow">Predicted category</p>
+                    <h2 id="categoryResult"></h2>
+                    <div class="metrics">
+                        <span id="wordCount"></span>
+                        <span id="sourceName"></span>
+                    </div>
+
+                    <h3>Top label ranking</h3>
+                    <div class="ranking-list" id="rankingList"></div>
+
+                    <details class="preview-box">
+                        <summary>Extracted text preview</summary>
+                        <p id="previewText"></p>
+                    </details>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

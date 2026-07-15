@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Product Recommender</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <main class="catalog-shell">
+        <section class="search-board">
+            <div>
+                <p class="eyebrow">Transformer Search</p>
+                <h1>Mobile Product Recommender</h1>
+            </div>
+            <form id="recommendForm" class="search-form">
+                <input id="query" name="query" type="search" placeholder="Try: 5G phone with AMOLED display and 5000mAh battery" autocomplete="off" required>
+                <select id="topK" name="top_k" aria-label="Number of results">
+                    <option value="6">6 results</option>
+                    <option value="8" selected>8 results</option>
+                    <option value="12">12 results</option>
+                </select>
+                <button type="submit">Search</button>
+            </form>
+            <div class="health-line" id="healthLine">Checking catalog...</div>
+        </section>
+
+        <section class="results-layout">
+            <aside class="insight-panel">
+                <span class="dial" id="resultCount">0</span>
+                <p id="engineName">No query yet</p>
+                <small id="runtimeNote"></small>
+            </aside>
+            <section class="product-grid" id="productGrid" aria-live="polite">
+                <article class="empty-card">
+                    <h2>Search the catalog</h2>
+                    <p>Recommended products will appear here with similarity scores and core specs.</p>
+                </article>
+            </section>
+        </section>
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>

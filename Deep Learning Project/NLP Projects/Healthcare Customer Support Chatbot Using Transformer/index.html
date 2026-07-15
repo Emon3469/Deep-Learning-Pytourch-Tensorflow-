@@ -3,133 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
-    <style>
-        /* Chatbot Icon */
-        #chatbot-icon {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: #007bff;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Chat Window */
-        #chat-window {
-            position: fixed;
-            bottom: 90px;
-            right: 20px;
-            width: 500px;
-            max-height: 800px;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        #chat-header {
-            background: #007bff;
-            color: white;
-            padding: 10px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        #chat-messages {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-        }
-
-        #chat-input {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #ccc;
-        }
-
-        #chat-input input {
-            flex: 1;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 5px;
-        }
-
-        #chat-input button {
-            margin-left: 5px;
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    <title>Healthcare Support Chatbot</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <h1 style="text-align: center; margin-top:10%;font-size:45px; color:red;">HealthCare Customer Support Chatbot</h1>
-    <!-- Chatbot Icon -->
-    <div id="chatbot-icon">💬</div>
+    <main class="chat-shell">
+        <section class="summary-panel">
+            <p class="eyebrow">Domain Support Assistant</p>
+            <h1>Healthcare Customer Support Chatbot</h1>
+            <p class="status" id="healthStatus">Checking model status...</p>
+            <div class="quick-prompts">
+                <button type="button" data-message="How can I schedule an appointment with my doctor?">Appointment</button>
+                <button type="button" data-message="What should I do if I miss a dose of my medication?">Medication</button>
+                <button type="button" data-message="What are common vaccine side effects?">Vaccine</button>
+            </div>
+        </section>
 
-    <!-- Chat Window -->
-    <div id="chat-window">
-        <div id="chat-header">Customer Support</div>
-        <div id="chat-messages"></div>
-        <div id="chat-input">
-            <input type="text" id="user-message" placeholder="Type your message...">
-            <button id="send-button">Send</button>
-        </div>
-    </div>
-
-    <script>
-        // Toggle chat window
-        document.getElementById('chatbot-icon').addEventListener('click', () => {
-            const chatWindow = document.getElementById('chat-window');
-            chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
-        });
-
-        // Handle message sending
-        document.getElementById('send-button').addEventListener('click', async () => {
-            const userMessage = document.getElementById('user-message').value;
-            if (!userMessage) return;
-
-            const chatMessages = document.getElementById('chat-messages');
-
-            // Add user's message
-            const userBubble = document.createElement('div');
-            userBubble.textContent = `You: ${userMessage}`;
-            chatMessages.appendChild(userBubble);
-
-            // Call backend API
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage })
-            });
-            const data = await response.json();
-
-            // Add bot's response
-            const botBubble = document.createElement('div');
-            botBubble.textContent = `Bot: ${data.response}`;
-            chatMessages.appendChild(botBubble);
-
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            // Clear input
-            document.getElementById('user-message').value = '';
-        });
-    </script>
+        <section class="chat-panel">
+            <div class="messages" id="messages" aria-live="polite">
+                <article class="message bot">
+                    <span>Assistant</span>
+                    <p>Hello. Ask a healthcare support question and I will route it through the trained model or the support knowledge base.</p>
+                </article>
+            </div>
+            <form class="composer" id="chatForm">
+                <input id="messageInput" type="text" placeholder="Type your healthcare support question..." autocomplete="off" required>
+                <button type="submit">Send</button>
+            </form>
+            <p class="note" id="engineNote"></p>
+        </section>
+    </main>
+    <script src="/static/app.js"></script>
 </body>
 </html>

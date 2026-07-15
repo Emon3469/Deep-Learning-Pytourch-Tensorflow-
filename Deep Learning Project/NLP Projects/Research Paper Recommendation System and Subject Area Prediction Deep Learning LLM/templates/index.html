@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Paper Recommender</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <main class="research-shell">
+        <section class="query-panel">
+            <div>
+                <p class="eyebrow">arXiv Semantic Search</p>
+                <h1>Research Paper Recommendation</h1>
+            </div>
+            <form id="paperForm">
+                <label for="title">Paper title</label>
+                <input id="title" name="title" type="text" placeholder="Graph neural networks for privacy preserving learning">
+                <label for="abstract">Abstract</label>
+                <textarea id="abstract" name="abstract" rows="8" placeholder="Paste an abstract or research idea..."></textarea>
+                <div class="controls">
+                    <select id="topK" name="top_k" aria-label="Number of recommendations">
+                        <option value="5" selected>5 papers</option>
+                        <option value="8">8 papers</option>
+                        <option value="10">10 papers</option>
+                    </select>
+                    <button type="submit">Recommend</button>
+                </div>
+            </form>
+            <p class="health" id="healthLine">Checking model status...</p>
+        </section>
+
+        <section class="answer-panel">
+            <div class="subject-board">
+                <div>
+                    <p class="eyebrow">Predicted subject areas</p>
+                    <h2 id="engineLabel">No query yet</h2>
+                </div>
+                <div class="subject-list" id="subjectList"></div>
+            </div>
+            <div class="paper-list" id="paperList" aria-live="polite">
+                <article class="empty-card">
+                    <h3>Recommendations will appear here.</h3>
+                    <p>Enter a title, abstract, or both to search the local arXiv embedding index.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>

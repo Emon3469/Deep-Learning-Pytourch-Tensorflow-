@@ -3,61 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Recommendation System</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <title>Mobile Product Recommender</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
-<style>
-    body {
-        background-color: #f8f9fa;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-        color: #007bff;
-    }
-
-    .card {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .card:hover {
-        transform: scale(1.05);
-    }
-</style>
 <body>
-    <div class="container my-5">
-        <h1 class="text-center mb-4">AI-Powered Product Recommendation System</h1>
-        <form method="POST" class="mb-4">
-            <div class="input-group">
-                <input type="text" class="form-control" name="query" placeholder="Search for a product..." required>
-                <button class="btn btn-primary" type="submit">Search</button>
+    <main class="catalog-shell">
+        <section class="search-board">
+            <div>
+                <p class="eyebrow">Transformer Search</p>
+                <h1>Mobile Product Recommender</h1>
             </div>
-        </form>
+            <form id="recommendForm" class="search-form">
+                <input id="query" name="query" type="search" placeholder="Try: 5G phone with AMOLED display and 5000mAh battery" autocomplete="off" required>
+                <select id="topK" name="top_k" aria-label="Number of results">
+                    <option value="6">6 results</option>
+                    <option value="8" selected>8 results</option>
+                    <option value="12">12 results</option>
+                </select>
+                <button type="submit">Search</button>
+            </form>
+            <div class="health-line" id="healthLine">Checking catalog...</div>
+        </section>
 
-        {% if recommendations %}
-        <div class="row row-cols-1 row-cols-md-5 g-4">
-            {% for product in recommendations %}
-            <div class="col">
-                <div class="card h-100">
-                    <!-- Extract the first image from the imgs list -->
-                    <img src="{{ product.imgs[0] if product.imgs else 'https://via.placeholder.com/150' }}"
-                         class="card-img-top" alt="Product Image">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.title }}</h5>
-                        <p class="card-text">
-                            <strong>Category:</strong> {{ product.category }}<br>
-                            <strong>Brand:</strong> {{ product.brand }}<br>
-                            <strong>Similarity:</strong> {{ "%.2f" | format(product.similarity) }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+        <section class="results-layout">
+            <aside class="insight-panel">
+                <span class="dial" id="resultCount">0</span>
+                <p id="engineName">No query yet</p>
+                <small id="runtimeNote"></small>
+            </aside>
+            <section class="product-grid" id="productGrid" aria-live="polite">
+                <article class="empty-card">
+                    <h2>Search the catalog</h2>
+                    <p>Recommended products will appear here with similarity scores and core specs.</p>
+                </article>
+            </section>
+        </section>
+    </main>
+    <script src="/static/app.js"></script>
 </body>
 </html>

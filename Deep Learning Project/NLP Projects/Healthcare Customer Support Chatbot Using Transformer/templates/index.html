@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Support Chatbot</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <main class="chat-shell">
+        <section class="summary-panel">
+            <p class="eyebrow">Domain Support Assistant</p>
+            <h1>Healthcare Customer Support Chatbot</h1>
+            <p class="status" id="healthStatus">Checking model status...</p>
+            <div class="quick-prompts">
+                <button type="button" data-message="How can I schedule an appointment with my doctor?">Appointment</button>
+                <button type="button" data-message="What should I do if I miss a dose of my medication?">Medication</button>
+                <button type="button" data-message="What are common vaccine side effects?">Vaccine</button>
+            </div>
+        </section>
+
+        <section class="chat-panel">
+            <div class="messages" id="messages" aria-live="polite">
+                <article class="message bot">
+                    <span>Assistant</span>
+                    <p>Hello. Ask a healthcare support question and I will route it through the trained model or the support knowledge base.</p>
+                </article>
+            </div>
+            <form class="composer" id="chatForm">
+                <input id="messageInput" type="text" placeholder="Type your healthcare support question..." autocomplete="off" required>
+                <button type="submit">Send</button>
+            </form>
+            <p class="note" id="engineNote"></p>
+        </section>
+    </main>
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -11,13 +11,14 @@ This project can be deployed as one or two Render services.
 ## Streamlit Service
 
 1. Push this folder to GitHub.
-2. In Render, create a new Web Service.
-3. Set the Root Directory to `Deep Learning Project/potato-disease-classification`.
-4. Add a `runtime.txt` file with `python-3.11.13` so Render uses a TensorFlow-compatible Python version.
-5. Set the Build Command to `pip install -r requirements.txt`.
-6. Set the Start Command to `streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port $PORT`.
-7. Add `API_URL` only if the Streamlit app should call the separate API service.
-8. Deploy and open the service URL.
+2. If you want Render to manage both services from a blueprint, use the repo-root [render.yaml](../../render.yaml) file.
+3. In Render, create a new Web Service from the blueprint or configure the UI service manually.
+4. Keep `runtime.txt` in this folder so Render uses Python 3.11.13.
+5. Keep `requirements.txt` pinned to `tensorflow==2.20.0`.
+6. If you configure the UI manually, set the Build Command to `pip install -r requirements.txt`.
+7. If you configure the UI manually, set the Start Command to `streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port $PORT`.
+8. Add `API_URL` only if the Streamlit app should call the separate API service.
+9. Deploy and open the service URL.
 
 ## FastAPI Service
 
@@ -35,4 +36,4 @@ This project can be deployed as one or two Render services.
 
 ## Why This Fix Works
 
-Render can default to a newer Python release that does not have a compatible TensorFlow wheel for this app. Pinning Python 3.11 keeps `tensorflow==2.21.0` installable during the Render build.
+Render can default to a newer Python release that does not have a compatible TensorFlow wheel for this app. Pinning Python 3.11 and using `tensorflow==2.20.0` keeps the Render build on a supported Linux wheel.

@@ -9,18 +9,30 @@
 <body>
     <main class="catalog-shell">
         <section class="search-board">
-            <div>
+            <div class="hero-copy-wrap">
                 <p class="eyebrow">Transformer Search</p>
                 <h1>Mobile Product Recommender</h1>
+                <p class="hero-copy">
+                    Search the catalog with natural language, compare matched phones, and keep the
+                    UI light enough for a fast Render deployment.
+                </p>
+                <div class="hero-pills">
+                    <span>Semantic ranking</span>
+                    <span>Fallback search</span>
+                    <span>Product cards</span>
+                </div>
             </div>
-            <form id="recommendForm" class="search-form">
+            <form id="recommendForm" class="search-form panel-card">
+                <label class="field-label" for="query">Search query</label>
                 <input id="query" name="query" type="search" placeholder="Try: 5G phone with AMOLED display and 5000mAh battery" autocomplete="off" required>
-                <select id="topK" name="top_k" aria-label="Number of results">
-                    <option value="6">6 results</option>
-                    <option value="8" selected>8 results</option>
-                    <option value="12">12 results</option>
-                </select>
-                <button type="submit">Search</button>
+                <div class="search-footer">
+                    <select id="topK" name="top_k" aria-label="Number of results">
+                        <option value="6">6 results</option>
+                        <option value="8" selected>8 results</option>
+                        <option value="12">12 results</option>
+                    </select>
+                    <button type="submit">Search</button>
+                </div>
             </form>
             <div class="health-line" id="healthLine">Checking catalog...</div>
         </section>

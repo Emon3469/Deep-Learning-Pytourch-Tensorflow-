@@ -9,11 +9,21 @@
 <body>
     <main class="research-shell">
         <section class="query-panel">
-            <div>
+            <div class="hero-card">
                 <p class="eyebrow">arXiv Semantic Search</p>
-                <h1>Research Paper Recommendation</h1>
+                <h1>Research paper discovery with a visible, polished UI.</h1>
+                <p class="hero-copy">
+                    Search the local arXiv embedding index, infer subject areas, and compare similar
+                    papers in a dashboard that feels like a real product on Render.
+                </p>
+                <div class="hero-pills">
+                    <span>Semantic search</span>
+                    <span>TF-IDF fallback</span>
+                    <span>Subject inference</span>
+                </div>
             </div>
-            <form id="paperForm">
+
+            <form id="paperForm" class="query-form">
                 <label for="title">Paper title</label>
                 <input id="title" name="title" type="text" placeholder="Graph neural networks for privacy preserving learning">
                 <label for="abstract">Abstract</label>
@@ -31,10 +41,24 @@
         </section>
 
         <section class="answer-panel">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span>Engine</span>
+                    <strong id="engineLabel">No query yet</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Recommendations</span>
+                    <strong id="resultCount">0</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Subjects</span>
+                    <strong id="subjectCount">0</strong>
+                </div>
+            </div>
             <div class="subject-board">
                 <div>
                     <p class="eyebrow">Predicted subject areas</p>
-                    <h2 id="engineLabel">No query yet</h2>
+                    <h2>Top labels from the nearest papers</h2>
                 </div>
                 <div class="subject-list" id="subjectList"></div>
             </div>

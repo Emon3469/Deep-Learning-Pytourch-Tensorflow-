@@ -10,10 +10,27 @@
     <main class="app-shell">
         <section class="workspace">
             <div class="panel intro-panel">
-                <p class="eyebrow">NLP Portfolio Project</p>
-                <h1>Resume Screening Classifier</h1>
-                <p class="lede">Upload a resume or paste text to classify it into one of the trained career categories.</p>
+                <div class="hero-card">
+                    <p class="eyebrow">NLP Portfolio Project</p>
+                    <h1>Resume Screening Classifier</h1>
+                    <p class="lede">Upload a resume or paste text to classify it into one of the trained career categories.</p>
+                    <div class="hero-pills">
+                        <span>PDF / DOCX / TXT</span>
+                        <span>Ranked labels</span>
+                        <span>Text preview</span>
+                    </div>
+                </div>
                 <div class="status-strip" id="healthStatus">Checking model status...</div>
+                <div class="mini-cards">
+                    <div class="mini-card">
+                        <span>Input</span>
+                        <strong>File or text</strong>
+                    </div>
+                    <div class="mini-card">
+                        <span>Output</span>
+                        <strong>Top category</strong>
+                    </div>
+                </div>
             </div>
 
             <form class="panel input-panel" id="resumeForm">

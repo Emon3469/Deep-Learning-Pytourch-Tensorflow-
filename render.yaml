@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: potato-disease-classification-ui
+    runtime: python
+    rootDir: Deep Learning Project/potato-disease-classification
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port $PORT
+  - type: web
+    name: potato-disease-classification-api
+    runtime: python
+    rootDir: Deep Learning Project/potato-disease-classification
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT

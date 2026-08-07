@@ -8,6 +8,8 @@ This project is best deployed as two separate Render services.
 - Streamlit dashboard: `streamlit.py`
 - Required artifacts: `customer_segmentation_model.pkl`, `scaler.pkl`, `segmented_retail_data.pkl`
 
+The API root (`/`) now serves a lightweight HTML dashboard, so you can deploy only the API service if you do not need Streamlit.
+
 ## FastAPI Service
 
 1. Push this folder to GitHub.
@@ -16,7 +18,7 @@ This project is best deployed as two separate Render services.
 4. Set the Build Command to `pip install -r requirements.txt`.
 5. Set the Start Command to `uvicorn main:app --host 0.0.0.0 --port $PORT`.
 6. Deploy the API first.
-7. Confirm `/health` and `/metadata` work.
+7. Confirm `/` shows the dashboard and `/health` and `/metadata` work.
 
 ## Streamlit Dashboard
 

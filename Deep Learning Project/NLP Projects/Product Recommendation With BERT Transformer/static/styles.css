@@ -18,7 +18,8 @@ body {
     margin: 0;
     min-height: 100vh;
     background:
-        radial-gradient(circle at top left, rgba(200, 76, 49, 0.15), transparent 32rem),
+        radial-gradient(circle at top left, rgba(200, 76, 49, 0.18), transparent 28rem),
+        radial-gradient(circle at top right, rgba(45, 106, 79, 0.14), transparent 24rem),
         linear-gradient(135deg, rgba(45, 106, 79, 0.12), transparent 28rem),
         var(--page);
     color: var(--ink);
@@ -33,14 +34,58 @@ body {
 
 .search-board {
     display: grid;
-    grid-template-columns: 0.7fr 1.3fr;
+    grid-template-columns: 0.85fr 1.15fr;
     gap: 22px;
-    align-items: end;
+    align-items: stretch;
     border: 1px solid var(--line);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.92);
     padding: 26px;
     box-shadow: 0 22px 60px rgba(32, 35, 31, 0.1);
+}
+
+.hero-copy-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.hero-copy {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.65;
+    max-width: 56ch;
+}
+
+.hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.hero-pills span {
+    border-radius: 999px;
+    padding: 8px 10px;
+    background: #eef7f1;
+    color: var(--green);
+    font-size: 0.84rem;
+    font-weight: 800;
+}
+
+.panel-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.88);
+    padding: 18px;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-size: 0.86rem;
+    font-weight: 800;
 }
 
 .eyebrow {
@@ -65,7 +110,13 @@ h1 {
 
 .search-form {
     display: grid;
-    grid-template-columns: minmax(180px, 1fr) 128px 110px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.search-footer {
+    display: grid;
+    grid-template-columns: 128px 110px;
     gap: 10px;
 }
 
@@ -275,6 +326,10 @@ button:disabled {
     }
 
     .search-form {
+        grid-template-columns: 1fr;
+    }
+
+    .search-footer {
         grid-template-columns: 1fr;
     }
 

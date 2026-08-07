@@ -18,10 +18,12 @@ body {
     margin: 0;
     min-height: 100vh;
     background:
+        radial-gradient(circle at top left, rgba(47, 112, 85, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(189, 63, 50, 0.14), transparent 24%),
         linear-gradient(90deg, rgba(47, 112, 85, 0.08) 1px, transparent 1px),
         linear-gradient(0deg, rgba(189, 63, 50, 0.06) 1px, transparent 1px),
         var(--page);
-    background-size: 36px 36px;
+    background-size: auto, auto, 36px 36px, 36px 36px, auto;
     color: var(--ink);
     font-family: Aptos, "Segoe UI", sans-serif;
 }
@@ -51,6 +53,44 @@ body {
     top: 18px;
     height: max-content;
     padding: 24px;
+}
+
+.hero-card {
+    border-radius: 18px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(47, 112, 85, 0.98), rgba(47, 48, 44, 0.98));
+    color: #fffdf7;
+    margin-bottom: 18px;
+    box-shadow: 0 22px 50px rgba(34, 33, 29, 0.18);
+}
+
+.hero-copy {
+    margin: 0;
+    color: rgba(255, 253, 247, 0.82);
+    line-height: 1.6;
+}
+
+.hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.hero-pills span {
+    border-radius: 999px;
+    padding: 8px 10px;
+    background: rgba(255, 253, 247, 0.12);
+    border: 1px solid rgba(255, 253, 247, 0.18);
+    font-size: 0.84rem;
+    font-weight: 800;
+}
+
+.query-form {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    padding: 20px;
 }
 
 .eyebrow {
@@ -163,6 +203,35 @@ button:disabled {
     align-content: start;
 }
 
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.stat-card {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 16px;
+    box-shadow: 0 16px 36px rgba(34, 33, 29, 0.06);
+}
+
+.stat-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.stat-card strong {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.7rem;
+    line-height: 1;
+}
+
 .subject-board {
     display: grid;
     grid-template-columns: 260px 1fr;
@@ -264,6 +333,10 @@ button:disabled {
 @media (max-width: 980px) {
     .research-shell,
     .subject-board {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-row {
         grid-template-columns: 1fr;
     }
 

@@ -3,6 +3,8 @@ const paperList = document.querySelector("#paperList");
 const subjectList = document.querySelector("#subjectList");
 const engineLabel = document.querySelector("#engineLabel");
 const healthLine = document.querySelector("#healthLine");
+const resultCount = document.querySelector("#resultCount");
+const subjectCount = document.querySelector("#subjectCount");
 
 function escapeHtml(value) {
     return String(value ?? "")
@@ -17,8 +19,10 @@ function renderSubjects(subjects) {
     subjectList.innerHTML = "";
     if (!subjects || !subjects.length) {
         subjectList.innerHTML = "<span class=\"empty-pill\">No subjects yet</span>";
+        subjectCount.textContent = "0";
         return;
     }
+    subjectCount.textContent = String(subjects.length);
     subjectList.innerHTML = subjects.map((item) => `
         <span class="subject-pill">
             <b>${escapeHtml(item.label)}</b>
@@ -80,6 +84,7 @@ form.addEventListener("submit", async (event) => {
         if (!response.ok) throw new Error(data.error || "Recommendation failed.");
 
         engineLabel.textContent = data.engine.replace("-", " ");
+        resultCount.textContent = String(data.count || 0);
         renderSubjects(data.subjects);
         paperList.innerHTML = data.recommendations.map(renderPaper).join("");
         if (data.runtime_note) {

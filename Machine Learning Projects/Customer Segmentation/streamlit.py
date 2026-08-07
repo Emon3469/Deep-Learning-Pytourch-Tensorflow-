@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import io
 import sys
 from pathlib import Path
@@ -20,7 +21,7 @@ import pandas as pd
 import requests
 
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000").rstrip("/")
 DEFAULT_COUNTRIES = {"United Kingdom": 35}
 
 

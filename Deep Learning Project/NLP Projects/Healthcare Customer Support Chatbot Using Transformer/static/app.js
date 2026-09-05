@@ -29,6 +29,10 @@ function addMessage(role, text, detail = "") {
 async function checkHealth() {
     try {
         const response = await fetch("/api/health");
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Backend not running or returned HTML (run 'python main.py' and open http://localhost:5002)");
+        }
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Chatbot unavailable.");
         const mode = data.transformer_model ? "fine-tuned T5 ready" : "retrieval fallback ready";
@@ -54,6 +58,10 @@ async function sendMessage(message) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message }),
         });
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Backend not running or returned HTML.");
+        }
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "The chatbot could not answer.");
 

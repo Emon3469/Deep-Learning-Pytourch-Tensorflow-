@@ -63,10 +63,39 @@ def load_assets() -> tuple[pd.DataFrame, np.ndarray]:
     return papers, normalized_embeddings
 
 
+def _load_pickle_with_cpu_map(path: Path) -> Any:
+    """Load a pickle file that may contain CUDA tensors, mapping them to CPU."""
+    import pickle
+    import torch
+
+    # If CUDA is not available, we need to map CUDA tensors to CPU
+    if not torch.cuda.is_available():
+        original_load = torch.load
+
+        def cpu_map_location(storage, location):
+            return storage.cpu()
+
+        # Temporarily replace torch.load with our CPU-mapping version
+        torch.load = lambda f, map_location=None, **kwargs: original_load(
+            f, map_location=map_location or cpu_map_location, **kwargs
+        )
+
+        try:
+            with path.open("rb") as file:
+                return pickle.load(file)
+        finally:
+            # Restore original torch.load
+            torch.load = original_load
+    else:
+        # CUDA is available, load normally
+        with path.open("rb") as file:
+            return pickle.load(file)
+
+
 @lru_cache(maxsize=1)
 def load_recommender_model() -> tuple[Any | None, str | None]:
     try:
-        model = _load_pickle(MODELS_DIR / "rec_model.pkl")
+        model = _load_pickle_with_cpu_map(MODELS_DIR / "rec_model.pkl")
         if not hasattr(model, "encode"):
             return None, "rec_model.pkl does not expose an encode method."
         return model, None
@@ -105,10 +134,10 @@ def _subject_predictions(papers: pd.DataFrame, indices: np.ndarray, scores: np.n
         for term in parse_terms(papers.iloc[index]["terms"]):
             weighted_terms[term] += weight
 
-    total = sum(weighted_terms.values()) or 1.0
+    total = max(sum(weighted_terms.values()), 1.0)
     ranked = sorted(weighted_terms.items(), key=lambda item: item[1], reverse=True)[:8]
     return [
-        {"label": label, "confidence": round((score / total) * 100, 2)}
+        {"label": str(label), "confidence": round(float((score / total) * 100), 2)}
         for label, score in ranked
     ]
 
@@ -136,6 +165,9 @@ def recommend_papers(title: str, abstract: str = "", top_k: int = 5) -> dict[str
     if scores is None:
         scores = _lexical_scores(query)
         engine = "tfidf-fallback"
+
+    # Sanitize scores to prevent NaN/Infinity from breaking JSON serialization
+    scores = np.nan_to_num(scores, nan=0.0, posinf=1.0, neginf=-1.0)
 
     top_indices = np.argsort(scores)[::-1][:top_k]
     recommendations = [_paper_result(papers.iloc[index], float(scores[index])) for index in top_indices]
@@ -176,10 +208,23 @@ def health() -> Any:
 @app.post("/api/recommend")
 def api_recommend() -> Any:
     try:
-        payload = request.get_json(silent=True) or request.form
+        payload = request.get_json(silent=True)
+        if not isinstance(payload, dict):
+            payload = request.form.to_dict() if request.form else {}
+        
         title = payload.get("title", "")
         abstract = payload.get("abstract", "")
         top_k = payload.get("top_k", 5)
+        
+        # Ensure we don't pass weird types
+        title = str(title) if title else ""
+        abstract = str(abstract) if abstract else ""
+        
+        try:
+            top_k = int(top_k)
+        except (ValueError, TypeError):
+            top_k = 5
+            
         return jsonify(recommend_papers(title, abstract, top_k))
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400

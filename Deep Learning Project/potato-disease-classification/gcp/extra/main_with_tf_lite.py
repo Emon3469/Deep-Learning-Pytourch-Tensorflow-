@@ -42,7 +42,7 @@ def predict(request):
         output_index = interpreter.get_output_details()[0]['index']
     
     image = request.files['file']
-    img = np.array(Image.open(image).convert('RGB').resize((256, 256)))
+    img = (np.array(Image.open(image).convert('RGB').resize((256, 256))) / 255.0).astype(np.float32)
 
     predicted_class, confidence = predict_using_tflite(img)
     return {
@@ -70,9 +70,9 @@ def predict_regular(request):
         model = tf.keras.models.load_model('/tmp/potatoes.h5')
 
     image = request.files['file']
-    image = np.array(
+    image = (np.array(
         Image.open(image).convert('RGB').resize((256, 256))
-    )
+    ) / 255.0).astype(np.float32)
     predicted_class, confidence = predict_using_regular_model(image)
     return {
         'predicted_class': predicted_class,

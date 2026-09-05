@@ -74,7 +74,8 @@ def load_retrieval_index() -> tuple[pd.DataFrame, TfidfVectorizer, Any]:
             data = healthcare
 
     data = data.reset_index(drop=True)
-    lookup_text = (data["query"].astype(str) + " " + data.get("intent", "").astype(str)).map(clean_text)
+    intent_series = data["intent"].astype(str) if "intent" in data.columns else pd.Series([""] * len(data))
+    lookup_text = (data["query"].astype(str) + " " + intent_series).map(clean_text)
     vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), max_features=12000)
     matrix = vectorizer.fit_transform(lookup_text)
     return data, vectorizer, matrix

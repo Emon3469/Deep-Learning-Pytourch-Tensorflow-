@@ -51,8 +51,13 @@ function renderPaper(paper, index) {
 async function checkHealth() {
     try {
         const response = await fetch("/api/health");
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Research model unavailable.");
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            throw new Error(`Invalid server response (Status: ${response.status}).`);
+        }
+        if (!response.ok) throw new Error(data?.error || "Research model unavailable.");
         const mode = data.semantic_model ? "semantic recommender ready" : "TF-IDF fallback ready";
         healthLine.textContent = `${data.papers} papers indexed; ${data.embedding_dimensions}D embeddings; ${mode}`;
         healthLine.classList.add("ready");
@@ -80,7 +85,12 @@ form.addEventListener("submit", async (event) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            throw new Error(`Invalid server response (Status: ${response.status}).`);
+        }
         if (!response.ok) throw new Error(data.error || "Recommendation failed.");
 
         engineLabel.textContent = data.engine.replace("-", " ");

@@ -24,14 +24,14 @@ app.add_middleware(
 
 endpoint = "http://localhost:8501/v1/models/potatoes:predict"
 
-class_names = ['Early Blight', 'Healthy', 'Late Blight']
+class_names = ['Early Blight', 'Late Blight', 'Healthy']
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Potato Disease Prediction API!"}
 
 def read_file_as_image(data) -> np.ndarray:
-    image = np.array(Image.open(BytesIO(data)))
+    image = np.array(Image.open(BytesIO(data)).convert('RGB').resize((256, 256)))
     return image
 
 @app.post("/predict")

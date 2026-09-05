@@ -25,7 +25,7 @@ def predict(request):
         model = tf.keras.models.load_model('/tmp/potatoes.h5')
     
     image = request.files['file']
-    img = np.array(Image.open(image).convert('RGB').resize((256, 256)))
+    img = (np.array(Image.open(image).convert('RGB').resize((256, 256))) / 255.0).astype(np.float32)
     img_array = np.expand_dims(img, axis=0)
     predictions = model.predict(img_array)
 

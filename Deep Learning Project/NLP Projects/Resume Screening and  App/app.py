@@ -141,7 +141,7 @@ def predict_resume(text: str) -> dict[str, Any]:
     if not cleaned:
         raise ValueError("No readable resume text was provided.")
 
-    vectorized = bundle.vectorizer.transform([cleaned]).toarray()
+    vectorized = bundle.vectorizer.transform([cleaned])
     predicted_value = bundle.classifier.predict(vectorized)[0]
     ranking = _rank_labels(bundle, vectorized)
 

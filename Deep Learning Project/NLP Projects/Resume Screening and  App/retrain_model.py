@@ -8,18 +8,22 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Load the data
-df = pd.read_csv('Resume Screening.csv')
+df = pd.read_csv(os.path.join(BASE_DIR, 'Resume Screening.csv'))
 
 # Clean resume function (same as in notebook)
 def cleanResume(txt):
-    cleanText = re.sub('http\S+\s', ' ', txt)
-    cleanText = re.sub('RT|cc', ' ', cleanText)
-    cleanText = re.sub('#\S+\s', ' ', cleanText)
-    cleanText = re.sub('@\S+', '  ', cleanText)
-    cleanText = re.sub('[%s]' % re.escape("""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""), ' ', cleanText)
+    cleanText = re.sub(r'http\S+\s', ' ', txt)
+    cleanText = re.sub(r'RT|cc', ' ', cleanText)
+    cleanText = re.sub(r'#\S+\s', ' ', cleanText)
+    cleanText = re.sub(r'@\S+', '  ', cleanText)
+    cleanText = re.sub('[%s]' % re.escape("""!"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"""), ' ', cleanText)
     cleanText = re.sub(r'[^\x00-\x7f]', ' ', cleanText)
-    cleanText = re.sub('\s+', ' ', cleanText)
+    cleanText = re.sub(r'\s+', ' ', cleanText)
     return cleanText
 
 # Clean the resumes
@@ -36,10 +40,6 @@ required_text = tfidf.fit_transform(df['Resume'])
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(required_text, df['Category'], test_size=0.2, random_state=42)
 
-# Convert to array if needed
-X_train = X_train.toarray() if hasattr(X_train, 'toarray') else X_train
-X_test = X_test.toarray() if hasattr(X_test, 'toarray') else X_test
-
 # Train the model (SVC as used in notebook)
 svc_model = OneVsRestClassifier(SVC())
 svc_model.fit(X_train, y_train)
@@ -49,11 +49,14 @@ y_pred = svc_model.predict(X_test)
 print(f"Model Accuracy: {accuracy_score(y_test, y_pred):.4f}")
 
 # Save the model artifacts
-pickle.dump(tfidf, open('tfidf.pkl', 'wb'))
-pickle.dump(svc_model, open('clf.pkl', 'wb'))
-pickle.dump(le, open('encoder.pkl', 'wb'))
+with open(os.path.join(BASE_DIR, 'tfidf.pkl'), 'wb') as f:
+    pickle.dump(tfidf, f)
+with open(os.path.join(BASE_DIR, 'clf.pkl'), 'wb') as f:
+    pickle.dump(svc_model, f)
+with open(os.path.join(BASE_DIR, 'encoder.pkl'), 'wb') as f:
+    pickle.dump(le, f)
 
 print("Model artifacts saved successfully!")
-print(f"TF-IDF vectorizer saved: tfidf.pkl")
-print(f"Classifier model saved: clf.pkl")
-print(f"Label encoder saved: encoder.pkl")
+print("TF-IDF vectorizer saved: tfidf.pkl")
+print("Classifier model saved: clf.pkl")
+print("Label encoder saved: encoder.pkl")

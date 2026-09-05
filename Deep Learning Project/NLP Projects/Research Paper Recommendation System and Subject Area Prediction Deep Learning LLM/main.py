@@ -64,32 +64,56 @@ def load_assets() -> tuple[pd.DataFrame, np.ndarray]:
 
 
 def _load_pickle_with_cpu_map(path: Path) -> Any:
-    """Load a pickle file that may contain CUDA tensors, mapping them to CPU."""
-    import pickle
+    """Load a pickle file that may contain CUDA tensors, mapping them to CPU.
+
+    Uses a custom Unpickler that intercepts torch's internal _load_from_bytes
+    to apply map_location='cpu', which is the standard approach (the old
+    monkey-patching of torch.load does not work because _load_from_bytes
+    bypasses it).
+    """
+    import io
+    import pickle as _pickle
+
     import torch
 
-    # If CUDA is not available, we need to map CUDA tensors to CPU
-    if not torch.cuda.is_available():
-        original_load = torch.load
+    class CPUUnpickler(_pickle.Unpickler):
+        def find_class(self, module: str, name: str) -> Any:
+            if module == "torch.storage" and name == "_load_from_bytes":
+                return lambda b: torch.load(
+                    io.BytesIO(b), map_location="cpu", weights_only=False
+                )
+            return super().find_class(module, name)
 
-        def cpu_map_location(storage, location):
-            return storage.cpu()
+    with path.open("rb") as fh:
+        return CPUUnpickler(fh).load()
 
-        # Temporarily replace torch.load with our CPU-mapping version
-        torch.load = lambda f, map_location=None, **kwargs: original_load(
-            f, map_location=map_location or cpu_map_location, **kwargs
-        )
 
-        try:
-            with path.open("rb") as file:
-                return pickle.load(file)
-        finally:
-            # Restore original torch.load
-            torch.load = original_load
-    else:
-        # CUDA is available, load normally
-        with path.open("rb") as file:
-            return pickle.load(file)
+def _patch_sentence_transformer_modules(model: Any) -> None:
+    """Fix attribute gaps caused by sentence-transformers version skew.
+
+    Older pickled SentenceTransformer models lack module_input_name /
+    module_output_name on their Normalize (and potentially other) sub-modules.
+    Newer library code (v6+) expects these attributes in forward().  We walk
+    every sub-module and add the defaults when missing.
+    """
+    try:
+        import torch.nn as nn
+
+        for module in model.modules() if isinstance(model, nn.Module) else []:
+            cls_name = type(module).__name__
+            if cls_name == "Normalize":
+                if not hasattr(module, "module_input_name"):
+                    module.module_input_name = "sentence_embedding"
+                if not hasattr(module, "module_output_name"):
+                    module.module_output_name = "sentence_embedding"
+            # Pooling modules also gained these attributes in v6
+            if cls_name == "Pooling":
+                if not hasattr(module, "module_input_name"):
+                    module.module_input_name = "token_embeddings"
+                if not hasattr(module, "module_output_name"):
+                    module.module_output_name = "sentence_embedding"
+    except Exception:
+        pass  # best-effort; do not crash if structure is unexpected
 
 
 @lru_cache(maxsize=1)
@@ -98,6 +122,7 @@ def load_recommender_model() -> tuple[Any | None, str | None]:
         model = _load_pickle_with_cpu_map(MODELS_DIR / "rec_model.pkl")
         if not hasattr(model, "encode"):
             return None, "rec_model.pkl does not expose an encode method."
+        _patch_sentence_transformer_modules(model)
         return model, None
     except Exception as exc:  # pragma: no cover - depends on sentence-transformers runtime
         return None, str(exc)
